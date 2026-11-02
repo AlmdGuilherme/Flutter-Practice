@@ -1,73 +1,97 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const CelsiusToFahrenheitApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class CelsiusToFahrenheitApp extends StatelessWidget {
+  const CelsiusToFahrenheitApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
+      title: 'Conversor de Temperatura',
       theme: ThemeData(
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const TempConverterScreen(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-
-  final String title;
+class TempConverterScreen extends StatefulWidget {
+  const TempConverterScreen({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<TempConverterScreen> createState() => _TempConverterScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _TempConverterScreenState extends State<TempConverterScreen> {
+  final TextEditingController _celsiusController = TextEditingController();
+  
+  double? _fahrenheit;
 
-  void _incrementCounter() {
+  void _convertTemperature() {
+    final double? celsius = double.tryParse(_celsiusController.text);
+
     setState(() {
-      
-      _counter++;
+      if (celsius != null) {
+        // Aplicação da fórmula: F = (C * 9/5) + 32
+        _fahrenheit = (celsius * 9 / 5) + 32;
+      } else {
+        _fahrenheit = null;
+      }
     });
   }
 
   @override
+  void dispose() {
+    _celsiusController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       appBar: AppBar(
-        
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        
-        title: Text(widget.title),
+        title: const Text('Conversor Celsius ➔ Fahrenheit'),
+        centerTitle: true,
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
         child: Column(
-          
-          mainAxisAlignment: .center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            TextField(
+              controller: _celsiusController,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(
+                labelText: 'Temperatura em Celsius (°C)',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.thermostat),
+              ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _convertTemperature,
+              child: const Text('Converter', style: TextStyle(fontSize: 18)),
+            ),
+            const SizedBox(height: 32),
+            Center(
+              child: Text(
+                _fahrenheit == null
+                    ? 'Digite um valor para converter'
+                    : '${_fahrenheit!.toStringAsFixed(1)} °F',
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
       ),
     );
   }
